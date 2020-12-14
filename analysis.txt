@@ -1,0 +1,95 @@
+from tkinter import *
+import tkinter as tk
+from PIL import ImageTk, Image
+import numpy as np
+from matplotlib import *
+import matplotlib.pyplot as plt
+import json
+import pandas as pd
+root = Tk()
+root.title('Data Analysis')
+title_bar = Frame(root, bg='#7d2727', relief='raised', bd=2)
+root.configure(bg='#7d2727')
+root.geometry("%dx%d+0+0" % (450, 300))
+#importing Data
+file = "C:\\Users\\ammour\\PycharmProjects\\untitled\\python_engineer.json"
+data = None
+with open(file, 'r') as f:
+    data = json.load(f)
+    channel_id, stats = data.popitem()
+    print(channel_id)
+    channel_stats = stats["channel_statistics"]
+    video_stats = stats["video_data"]
+    # channel statistics
+    def Cstats():
+     print('Views :', channel_stats["viewCount"])
+     print('Subescriber :', channel_stats["subscriberCount"])
+     print('Videos :', channel_stats["videoCount"])
+
+
+    # videos statistics
+    def Vstats():
+     sorted_vids = sorted(video_stats.items(), key=lambda item: int(item[1]["viewCount"]), reverse=True)
+     stats = []
+     for vid in sorted_vids :
+        video_id = vid[0]
+        title = vid[1]["title"]
+        views = int(vid[1]["viewCount"])
+        likes = int(vid[1]["likeCount"])
+        dislikes = int(vid[1]["dislikeCount"])
+        comments = int(vid[1]["commentCount"])
+        stats.append([title, views, likes, dislikes, comments])
+
+
+        #tabel
+        def tabel():
+         df = pd.DataFrame(stats, columns=["titles", "views", "likes", "dislikes", "comments"])
+         df.head(10)
+
+
+        #Plot1
+        def plot1():
+         top10 = df.head(10)
+         assert isinstance(top10, object)
+         ax = top10.plot.bar(x="titles", y="views", figsize=(12, 8), fontsize=14)
+         plt.show()
+
+
+        # Plot1
+        def plot2():
+         bottom10 = df.tail(10)
+         ax = bottom10.plot.bar(x="titles", y="views", figsize=(12, 8), fontsize=14)
+
+
+        # Likes vs Dislikes
+        def LDC():
+         likes_avg = top10['likes'].mean()
+         dislikes_avg = top10['dislikes'].mean()
+         comments_avg = top10['comments'].mean()
+         print('Top 10 :')
+         print('Averages likes :', likes_avg)
+         print('Averages Dislikes :', dislikes_avg)
+         print('Averages Comments :', comments_avg)
+
+         likes_avg = bottom10['likes'].mean()
+         dislikes_avg = bottom10['dislikes'].mean()
+         comments_avg = bottom10['comments'].mean()
+         print('Bottom 10 :')
+         print('Averages likes :', likes_avg)
+         print('Averages Dislikes :', dislikes_avg)
+         print('Averages Comments :', comments_avg)
+
+        myButton = tk.Button(root, text="channel statistics", bg='#7d2727', fg='white', font="Times 14 underline bold", command=Cstats)
+        myButton.pack()
+        b2 = tk.Button(root, text="videos statistics", bg='#7d2727', fg='white', font="Times 14 underline bold", command=Vstats)
+        b2.pack()
+        b3 = tk.Button(root, text="Top 10 videos", bg='#7d2727', fg='white', font="Times 14 underline bold", command=tabel)
+        b3.pack()
+        b4 = tk.Button(root, text="Top 10 videos", bg='#7d2727', fg='white', font="Times 14 underline bold", command=plot1)
+        b4.pack()
+        b5 = tk.Button(root, text="plot2", bg='#7d2727', fg='white', font="Times 14 underline bold", command=plot2)
+        b5.pack()
+        b6 = tk.Button(root, text="AVG likes,dislikes and comments", bg='#7d2727', fg='white', font="Times 14 underline bold", command=LDC)
+        b6.pack()
+
+root.mainloop()
